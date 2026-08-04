@@ -2,9 +2,7 @@
 
 A small, complete 2D game made with **Unity 2022.3 LTS**. You play a little robot trapped in a small room. You must collect **3 power cells** to unlock the exit and escape, while avoiding one enemy that patrols and chases you. A round lasts about 2–4 minutes.
 
-*(能量电池逃脱 — this is the English version of the README; a Chinese copy is kept as `README.zh.md`.)*
 
-This repository is my submission for a resit assessment. It contains the full source code, build instructions, the concept & design document, the development log, and the final report.
 
 ---
 
