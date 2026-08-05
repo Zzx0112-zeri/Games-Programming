@@ -16,6 +16,8 @@ that day.
 - Implemented `GameManager` (state, timer, lives, events) and the `GameBootstrap`
   entry point using `[RuntimeInitializeOnLoadMethod]`.
 - Implemented `GameArt` for procedural sprites (robot, enemy, cell, wall).
+  Later replaced player/enemy/battery with external PNGs in `Resources/Sprites/`,
+  loaded via `SpriteAssets` with procedural fallback.
 - Implemented `LevelBuilder` to construct the room and entities.
 
 ## 2026-08-02 (Day 3) — Players, items, enemy

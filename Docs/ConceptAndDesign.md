@@ -29,12 +29,21 @@ demo.
 
 ## 3. Core gameplay loop
 
-1. The round starts: timer counts down from 180s.
+The game has three screens driven by a single `GameManager` state
+(`Menu` → `Playing` → `Won`/`Lost`):
+
+- **Start page** (`Menu`): shows the title with **Start** (enter the game) and
+  **Exit** (close the game) buttons.
+- **Gameplay** (`Playing`): the round is active.
+- **End screen** (`Won`/`Lost`): on a win or Game Over, shows **Restart**
+  (back to the start page) and **Exit Game** (close the game).
+
+1. The game opens on the **start page**. Pressing **Start** begins a round and the timer counts down from 180s.
 2. The player explores the room and collects cells (`B1`, `B2`, `B3`).
 3. The enemy wanders randomly; the player must avoid touching it.
 4. Touching the enemy ends the round immediately (Game Over).
 5. Once all three cells are collected, the exit unlocks (red → green, `LOCKED` → `OPEN`).
-6. Reaching the open exit wins. Touching the enemy or running out of time loses.
+6. Reaching the open exit wins. Touching the enemy or running out of time shows the **end screen**.
 
 ## 4. Mechanics in detail
 
@@ -52,7 +61,7 @@ demo.
 | Key | Action |
 |-----|--------|
 | W A S D / Arrows | Move |
-| R | Restart level |
+| R | Return to the start page (from play or end screen) |
 | C | Toggle high-contrast mode |
 | M | Mute / unmute |
 | `[` / `]` | Volume down / up |
@@ -81,10 +90,10 @@ RuntimeInitializeOnLoadMethod
         │
         ▼
    GameBootstrap.Init()
-        ├─ creates GameManager (state, timer, win/lose)
+        ├─ creates GameManager (state: Menu/Playing/Won/Lost, timer, win/lose)
         ├─ creates SettingsManager (C / M / [ ] / R input)
         ├─ creates AudioFeedback (runtime-synthesised SFX)
-        ├─ creates HUDManager + InstructionsPanel (OnGUI)
+        ├─ creates HUDManager + InstructionsPanel + MenuManager (OnGUI)
         └─ LevelBuilder.Build()
               ├─ camera
               ├─ 4 walls
@@ -95,13 +104,17 @@ RuntimeInitializeOnLoadMethod
 ```
 
 - **GameManager** is the single source of truth for state and exposes events
-  (`OnCellCollected`, `OnWin`, `OnLose`).
-- **LevelBuilder** constructs the room and entities using procedural sprites from
-  `GameArt`.
+  (`OnCellCollected`, `OnWin`, `OnLose`). It owns the screen flow: `StartGame()`
+  rebuilds a fresh level and enters `Playing`; `ReturnToMenu()` rebuilds and returns
+  to `Menu`.
+- **MenuManager** draws the start page (`Menu`) and end screen (`Won`/`Lost`) as
+  OnGUI overlays with `Start`/`Exit` and `Restart`/`Exit Game` buttons. `Exit`/
+  `Exit Game` call `Application.Quit()` (editor play is stopped via
+  `EditorApplication.isPlaying = false`).
+- **LevelBuilder** constructs the room and entities under a `LevelRoot` GameObject so
+  it can be destroyed and rebuilt cleanly on every start / return-to-menu.
 - **WorldLabel** draws text (cell labels, `!`, `LOCKED`/`OPEN`) in screen space with
   `OnGUI`, so no font or text assets are shipped.
-- **Restart** reloads the active scene, which destroys all objects and re-runs the
-  bootstrapper, giving a clean fresh round.
 
 ## 8. Accessibility
 
@@ -117,12 +130,14 @@ RuntimeInitializeOnLoadMethod
 
 There are **no external assets**:
 
-- Sprites (robot, enemy square, cell circle, walls) are drawn into `Texture2D` objects
-  at runtime by `GameArt` and turned into `Sprite`s.
+- Player, enemy and battery sprites are stored as PNGs in `Resources/Sprites/`
+  and loaded at runtime via `SpriteAssets`. Walls and the exit still use
+  procedurally generated sprites as a fallback.
 - Sounds (collect, hit, win, lose) are short sine tones generated with
   `AudioClip.Create` and played through a single `AudioSource`.
-- The only font used is Unity's built-in Arial, loaded with
-  `Resources.GetBuiltinResource<Font>("Arial.ttf")`.
+- The only font used is Unity's built-in font, resolved via `GuiFonts`
+  (`LegacyRuntime.ttf` on Unity 2022.3, `Arial.ttf` on older versions, with a
+  safe fallback to the skin default).
 
 ## 10. Testing plan
 
@@ -131,7 +146,8 @@ There are **no external assets**:
 - **Collision checks:** player blocked by walls; cells/enemy/exit trigger correctly.
 - **Enemy contact:** any touch ends the round (Game Over); there is no life buffer.
 - **Accessibility:** toggle high contrast, mute, and volume; verify HUD updates.
-- **Restart:** press `R` mid-game and after win/lose; confirm a clean reset.
+- **Screens:** start page shows Start/Exit; end screen shows Restart/Exit Game; Exit closes the game.
+- **Restart / return to menu:** press `R` mid-game and on the end screen, or click the buttons; confirm a clean reset and a fresh level.
 - **Build:** produce a standalone player build and verify the level loads.
 
 ## 11. Risks & mitigations

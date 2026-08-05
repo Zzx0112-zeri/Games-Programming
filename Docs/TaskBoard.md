@@ -12,7 +12,7 @@ Status legend: ✅ done · 🔶 in progress · ⬜ todo
 - ✅ Project scaffolding (Packages, ProjectSettings, .gitignore, scene)
 - ✅ `GameManager` — state, timer, lives, win/lose
 - ✅ `GameBootstrap` + `LevelBuilder` — runtime level construction
-- ✅ `GameArt` — procedural sprites
+- ✅ `GameArt` / `SpriteAssets` — procedural + external PNG sprites
 - ✅ `PlayerController` — movement, invulnerability, triggers
 - ✅ `Battery` / `ExitDoor` — collectables & locked/open exit
 - ✅ `PatrollingEnemy` — patrol + chase

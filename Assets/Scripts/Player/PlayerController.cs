@@ -2,8 +2,9 @@ using UnityEngine;
 
 namespace PowerCellEscape.Player
 {
-    using PowerCellEscape.Core;
-    using PowerCellEscape.Items;
+using PowerCellEscape.Core;
+using PowerCellEscape.Enemy;
+using PowerCellEscape.Items;
 
     /// <summary>
     /// Top-down player movement and collection. Uses a dynamic Rigidbody2D with
@@ -15,7 +16,7 @@ namespace PowerCellEscape.Player
     {
         public float speed = 5f;
         public float pickupRadius = 0.7f;   // how close to a battery counts as "touch"
-        public float hitRadius = 0.75f;     // how close to the enemy counts as "hit"
+        public float hitRadius = 0.85f;     // how close to the enemy counts as "hit"
 
         private Rigidbody2D rb;
         private SpriteRenderer sr;
@@ -35,8 +36,7 @@ namespace PowerCellEscape.Player
         void Start()
         {
             batteries = FindObjectsOfType<Battery>();
-            var enemy = GameObject.FindWithTag("Enemy");
-            enemyTransform = enemy != null ? enemy.transform : null;
+            enemyTransform = FindObjectOfType<PatrollingEnemy>()?.transform;
         }
 
         void Update()

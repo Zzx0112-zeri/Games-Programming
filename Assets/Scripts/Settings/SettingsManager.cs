@@ -9,7 +9,7 @@ namespace PowerCellEscape.Settings
     ///   M  - mute / unmute
     ///   [  - decrease volume
     ///   ]  - increase volume
-    ///   R  - restart the level
+    ///   R  - return to the start page (from play or end screen)
     /// </summary>
     public class SettingsManager : MonoBehaviour
     {
@@ -46,7 +46,7 @@ namespace PowerCellEscape.Settings
             }
             if (Input.GetKeyDown(KeyCode.R))
             {
-                gm.Restart();
+                gm.ReturnToMenu();
             }
         }
 
@@ -63,9 +63,18 @@ namespace PowerCellEscape.Settings
             if (gm == null) return;
             Camera cam = Camera.main;
             if (cam == null) return;
-            cam.backgroundColor = gm.HighContrast
-                ? new Color(0f, 0f, 0f, 1f)
-                : new Color(0.10f, 0.10f, 0.15f, 1f);
+            // Normal mode = white background; high-contrast mode = black background.
+            cam.backgroundColor = gm.HighContrast ? Color.black : Color.white;
+
+            // Boundary is solid black on the white background. On the high-contrast
+            // (black) background it flips to white so it stays visible.
+            Color wallColor = gm.HighContrast ? Color.white : Color.black;
+            var walls = FindObjectsOfType<SpriteRenderer>();
+            foreach (var w in walls)
+            {
+                if (w.gameObject.name.StartsWith("Wall"))
+                    w.color = wallColor;
+            }
         }
     }
 }

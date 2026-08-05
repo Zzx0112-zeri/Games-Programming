@@ -22,8 +22,10 @@ namespace PowerCellEscape.UI
             if (!show) return;
 
             var gm = GameManager.Instance;
-            bool hc = gm != null && gm.HighContrast;
-            Color fg = hc ? Color.yellow : Color.white;
+            if (gm == null || gm.State != GameState.Playing) return;
+
+            bool hc = gm.HighContrast;
+            Color fg = hc ? Color.yellow : Color.black;
 
             Rect r = new Rect(Screen.width / 2 - 230, Screen.height / 2 - 170, 460, 340);
             GUI.Box(r, "How to play");
@@ -31,7 +33,7 @@ namespace PowerCellEscape.UI
             string body =
                 "Collect 3 power cells (B1 B2 B3) and reach the exit.\n\n" +
                 "WASD / Arrow keys : Move\n" +
-                "R : Restart level\n" +
+                "R : Back to start page\n" +
                 "C : High-contrast mode\n" +
                 "M : Mute / unmute     [ ] : Volume\n" +
                 "I : Hide this help\n\n" +
@@ -47,7 +49,7 @@ namespace PowerCellEscape.UI
             var s = new GUIStyle(GUI.skin.label);
             s.normal.textColor = c;
             s.fontSize = size;
-            s.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            s.font = GuiFonts.Builtin;
             return s;
         }
     }

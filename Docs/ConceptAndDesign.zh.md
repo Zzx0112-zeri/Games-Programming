@@ -23,12 +23,18 @@
 
 ## 3. 核心循环
 
-1. 回合开始：倒计时 180 秒。
+游戏由单一 `GameManager` 状态驱动三个页面（`Menu` → `Playing` → `Won`/`Lost`）：
+
+- **开始页面**（`Menu`）：显示标题，含 **开始**（进入游戏）与 **退出**（关闭游戏）按钮。
+- **游戏进行中**（`Playing`）：回合激活。
+- **结算页面**（`Won`/`Lost`）：胜利或 Game Over 时显示 **重新开始**（回到开始页面）与 **退出游戏**（关闭游戏）按钮。
+
+1. 游戏打开即开始页面，点击 **开始** 进入回合，倒计时 180 秒。
 2. 玩家探索房间并收集电池（`B1`、`B2`、`B3`）。
 3. 敌人随机游走；玩家需避免碰到它。
 4. 碰到敌人立即结束回合（Game Over）。
 5. 集齐 3 个电池后，出口解锁（红→绿，`LOCKED`→`OPEN`）。
-6. 到达已开启的出口即胜利；碰到敌人或时间耗尽则失败。
+6. 到达已开启的出口即胜利；碰到敌人或时间耗尽则弹出 **结算页面**。
 
 ## 4. 机制细节
 
@@ -43,7 +49,7 @@
 
 ## 5. 操作
 
-`W A S D / 方向键` 移动；`R` 重开；`C` 高对比度；`M` 静音；`[` / `]` 音量；`I` 帮助。
+`W A S D / 方向键` 移动；`R` 返回开始页面（游戏中或结算页面）；`C` 高对比度；`M` 静音；`[` / `]` 音量；`I` 帮助。
 
 ## 6. 关卡布局
 
@@ -57,8 +63,15 @@
 重建：
 
 `RuntimeInitializeOnLoadMethod` → `GameBootstrap.Init()` 创建 GameManager、
-SettingsManager、AudioFeedback、HUDManager、InstructionsPanel，再调用
-`LevelBuilder.Build()` 生成摄像机、四面墙、玩家、3 个电池、出口与敌人。
+SettingsManager、AudioFeedback、HUDManager、InstructionsPanel、MenuManager，再调用
+`LevelBuilder.Build()` 生成摄像机、四面墙、玩家、3 个电池、出口与敌人（全部放在
+`LevelRoot` 下，便于每次开始/返回菜单时清空重建）。
+
+- **GameManager** 是状态唯一来源，拥有页面流转：`StartGame()` 重建关卡并进入
+  `Playing`；`ReturnToMenu()` 重建并返回 `Menu`。
+- **MenuManager** 用 OnGUI 绘制开始页面（`Menu`）与结算页面（`Won`/`Lost`）：
+  `Start`/`Exit` 与 `Restart`/`Exit Game` 按钮；`Exit`/`Exit Game` 调用
+  `Application.Quit()`（编辑器内通过 `EditorApplication.isPlaying = false` 停止）。
 
 ## 8. 无障碍设计
 
@@ -67,12 +80,11 @@ SettingsManager、AudioFeedback、HUDManager、InstructionsPanel，再调用
 
 ## 9. 美术与音频
 
-**无任何外部资源**：精灵由 `GameArt` 在运行时绘制为 `Texture2D`；音效由
-`AudioFeedback` 用 `AudioClip.Create` 合成短正弦音；字体使用 Unity 内置 Arial。
+**外部美术资源**：玩家、敌人、能量电池使用 `Resources/Sprites/` 下的三张手绘 PNG；墙与出口仍由 `GameArt` 程序生成兜底。音效由 `AudioFeedback` 用 `AudioClip.Create` 合成短正弦音；字体使用 Unity 内置字体（2022.3 为 `LegacyRuntime.ttf`，经 `GuiFonts` 兜底）。
 
 ## 10. 测试计划
 
-手动验证胜利路径与两种失败路径、碰撞与触发、无敌窗口、无障碍切换、重开，以及独立打包
+手动验证胜利路径与两种失败路径、碰撞与触发、开始页面（开始/退出）与结算页面（重新开始/退出游戏）、无障碍切换、`R` 返回菜单、独立打包
 后关卡可加载。
 
 ## 11. 风险与对策

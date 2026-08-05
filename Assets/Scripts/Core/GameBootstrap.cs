@@ -19,7 +19,9 @@ namespace PowerCellEscape.Core
             new GameObject("AudioFeedback").AddComponent<Audio.AudioFeedback>();
             new GameObject("HUDManager").AddComponent<UI.HUDManager>();
             new GameObject("InstructionsPanel").AddComponent<UI.InstructionsPanel>();
+            new GameObject("MenuManager").AddComponent<UI.MenuManager>();
 
+            // Build the (frozen) level as a backdrop, then show the start page.
             LevelBuilder.Build();
         }
     }

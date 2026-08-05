@@ -14,8 +14,9 @@ it as if explaining the project to a marker who has not seen the brief.]
 - Key design decisions:
   - Everything is built in code at runtime (`GameBootstrap` + `LevelBuilder`) so the
     scene has no fragile hand-placed references.
-  - No external art/audio assets — sprites are drawn with `GameArt`, sounds are
-    synthesised with `AudioFeedback`.
+  - External art assets: player, enemy and battery PNGs in `Resources/Sprites/`,
+    loaded at runtime via `SpriteAssets`. Walls and exit remain procedural
+    fallbacks. Sounds are synthesised with `AudioFeedback`.
   - Status is conveyed by text as well as colour (accessibility).
 
 ## 3. Implementation
@@ -60,7 +61,7 @@ No AI-generated asset (art/audio) is included; all are created at runtime by my 
 
 ## 8. Third-party resources
 - Unity® 2022.3 LTS — engine (© Unity Technologies, under its licence).
-- Unity built-in Arial font (loaded via `Resources.GetBuiltinResource`).
+- Unity built-in font (resolved via `GuiFonts`, using `LegacyRuntime.ttf` on Unity 2022.3 with a safe fallback).
 - [List any tutorials, forum threads, or docs you consulted, with URLs.]
 
 ## 9. Submission checklist

@@ -1,13 +1,16 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace PowerCellEscape.Core
 {
-    public enum GameState { Playing, Won, Lost }
+    public enum GameState { Menu, Playing, Won, Lost }
 
     /// <summary>
-    /// Central game state and rules. A single instance lives for the duration of
-    /// a level; on restart the scene is reloaded so a fresh instance is created.
+    /// Central game state and rules. A single instance lives for the whole
+    /// session. The flow is:
+    ///   Menu  -> start page (Start / Exit buttons)
+    ///   Playing -> the round is active
+    ///   Won / Lost -> end screen (Restart / Exit Game buttons)
+    /// Returning to the menu rebuilds the level so every round starts fresh.
     /// </summary>
     public class GameManager : MonoBehaviour
     {
@@ -16,7 +19,7 @@ namespace PowerCellEscape.Core
         public static readonly int TotalCells = 3;
         public const float RoundTime = 180f;
 
-        public GameState State { get; private set; } = GameState.Playing;
+        public GameState State { get; private set; } = GameState.Menu;
         public int CellsCollected { get; private set; } = 0;
         public float TimeRemaining { get; private set; } = RoundTime;
 
@@ -26,6 +29,7 @@ namespace PowerCellEscape.Core
         public bool Muted { get; set; } = false;
 
         public bool AllCellsCollected => CellsCollected >= TotalCells;
+        public bool DidWin => State == GameState.Won;
 
         public event System.Action OnCellCollected;
         public event System.Action OnWin;
@@ -69,9 +73,23 @@ namespace PowerCellEscape.Core
             OnLose?.Invoke();
         }
 
-        public void Restart()
+        /// <summary>Begin a fresh round from the start page.</summary>
+        public void StartGame()
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            LevelBuilder.Build();      // rebuild a clean level
+            CellsCollected = 0;
+            TimeRemaining = RoundTime;
+            State = GameState.Playing;
+        }
+
+        /// <summary>Return to the start page. Used by the end-screen Restart
+        /// button and the R key. Rebuilds the level so the backdrop is fresh.</summary>
+        public void ReturnToMenu()
+        {
+            LevelBuilder.Build();
+            CellsCollected = 0;
+            TimeRemaining = RoundTime;
+            State = GameState.Menu;
         }
     }
 }
