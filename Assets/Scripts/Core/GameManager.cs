@@ -20,6 +20,7 @@ namespace PowerCellEscape.Core
         public const float RoundTime = 180f;
 
         public GameState State { get; private set; } = GameState.Menu;
+        public bool IsPaused { get; private set; } = false;
         public int CellsCollected { get; private set; } = 0;
         public float TimeRemaining { get; private set; } = RoundTime;
 
@@ -73,12 +74,38 @@ namespace PowerCellEscape.Core
             OnLose?.Invoke();
         }
 
+        /// <summary>Freeze the round (physics + countdown). Drawn as a pause
+        /// overlay by MenuManager. Toggled with P / Esc.</summary>
+        public void Pause()
+        {
+            if (State != GameState.Playing || IsPaused) return;
+            IsPaused = true;
+            Time.timeScale = 0f;
+        }
+
+        /// <summary>Resume from the pause overlay.</summary>
+        public void Resume()
+        {
+            if (!IsPaused) return;
+            IsPaused = false;
+            Time.timeScale = 1f;
+        }
+
+        /// <summary>Toggle the pause overlay (only meaningful while Playing).</summary>
+        public void TogglePause()
+        {
+            if (State != GameState.Playing) return;
+            if (IsPaused) Resume(); else Pause();
+        }
+
         /// <summary>Begin a fresh round from the start page.</summary>
         public void StartGame()
         {
             LevelBuilder.Build();      // rebuild a clean level
             CellsCollected = 0;
             TimeRemaining = RoundTime;
+            IsPaused = false;
+            Time.timeScale = 1f;
             State = GameState.Playing;
         }
 
@@ -89,6 +116,8 @@ namespace PowerCellEscape.Core
             LevelBuilder.Build();
             CellsCollected = 0;
             TimeRemaining = RoundTime;
+            IsPaused = false;
+            Time.timeScale = 1f;
             State = GameState.Menu;
         }
     }

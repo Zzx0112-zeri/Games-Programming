@@ -44,7 +44,7 @@ namespace PowerCellEscape.Enemy
 
         void FixedUpdate()
         {
-            if (GameManager.Instance == null || GameManager.Instance.State != GameState.Playing)
+            if (GameManager.Instance == null || GameManager.Instance.State != GameState.Playing || GameManager.Instance.IsPaused)
             {
                 rb.velocity = Vector2.zero;
                 return;

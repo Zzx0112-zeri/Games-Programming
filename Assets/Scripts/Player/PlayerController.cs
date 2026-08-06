@@ -41,7 +41,7 @@ using PowerCellEscape.Items;
 
         void Update()
         {
-            if (GameManager.Instance == null || GameManager.Instance.State != GameState.Playing) return;
+            if (GameManager.Instance == null || GameManager.Instance.State != GameState.Playing || GameManager.Instance.IsPaused) return;
 
             // Collect any battery the player is standing on.
             if (batteries != null)
@@ -68,7 +68,7 @@ using PowerCellEscape.Items;
 
         void FixedUpdate()
         {
-            if (GameManager.Instance == null || GameManager.Instance.State != GameState.Playing)
+            if (GameManager.Instance == null || GameManager.Instance.State != GameState.Playing || GameManager.Instance.IsPaused)
             {
                 rb.velocity = Vector2.zero;
                 return;

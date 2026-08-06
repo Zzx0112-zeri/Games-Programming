@@ -33,13 +33,13 @@ namespace PowerCellEscape.UI
             string body =
                 "Collect 3 power cells (B1 B2 B3) and reach the exit.\n\n" +
                 "WASD / Arrow keys : Move\n" +
+                "P / Esc : Pause        I : Hide this help\n" +
                 "R : Back to start page\n" +
                 "C : High-contrast mode\n" +
-                "M : Mute / unmute     [ ] : Volume\n" +
-                "I : Hide this help\n\n" +
+                "M : Mute / unmute     [ ] : Volume\n\n" +
                 "Avoid the red enemy (it moves randomly).\n" +
-                "Touching it ends the game. The exit stays LOCKED\n" +
-                "until all cells are collected, then opens.";
+                "Touching it ends the game. The exit shows a no-entry\n" +
+                "sign until all cells are collected, then opens.";
 
             GUI.Label(new Rect(r.x + 22, r.y + 42, r.width - 44, r.height - 60), body, MakeStyle(fg, 18));
         }

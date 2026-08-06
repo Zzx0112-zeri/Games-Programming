@@ -31,6 +31,8 @@ namespace PowerCellEscape.UI
 
             if (gm.State == GameState.Menu)
                 DrawStartMenu(gm);
+            else if (gm.IsPaused)
+                DrawPauseMenu(gm);
             else if (gm.State == GameState.Won || gm.State == GameState.Lost)
                 DrawEndScreen(gm);
         }
@@ -43,21 +45,65 @@ namespace PowerCellEscape.UI
             Color fg = hc ? Color.yellow : Color.white;
             float cx = Screen.width / 2f;
 
-            GUI.Label(new Rect(cx - 320, Screen.height * 0.27f, 640, 72),
+            GUI.Label(new Rect(cx - 320, Screen.height * 0.20f, 640, 72),
                 "POWER CELL ESCAPE", TitleStyle(fg));
 
-            GUI.Label(new Rect(cx - 340, Screen.height * 0.27f + 80, 680, 40),
+            GUI.Label(new Rect(cx - 340, Screen.height * 0.20f + 80, 680, 40),
                 "Collect 3 power cells, reach the exit, and avoid the red enemy.",
                 SubStyle(fg));
 
+            // On-page controls / how-to-play (accessibility: not colour-only).
+            string help =
+                "Controls:\n" +
+                "  WASD / Arrow keys  -  Move\n" +
+                "  P or Esc  -  Pause        I  -  Help overlay\n" +
+                "  C  -  High contrast       M  -  Mute / unmute\n" +
+                "  [  ]  -  Volume           R  -  Back to start page";
+            GUI.Label(new Rect(cx - 320, Screen.height * 0.34f, 640, 120), help, SubStyle(fg));
+
             var btn = ButtonStyle(fg);
             float bw = 240f, bh = 56f;
-            float by = Screen.height * 0.52f;
+            float by = Screen.height * 0.56f;
 
             if (GUI.Button(new Rect(cx - bw / 2f, by, bw, bh), "Start", btn))
                 gm.StartGame();
 
             if (GUI.Button(new Rect(cx - bw / 2f, by + 72f, bw, bh), "Exit", btn))
+                QuitGame();
+
+            // Accessibility toggles, also clickable from the start page.
+            float tbw = 300f;
+            float ty = by + 72f + 72f + 16f;
+            if (GUI.Button(new Rect(cx - tbw / 2f, ty, tbw, 44f),
+                    gm.Muted ? "Unmute (M)" : "Mute (M)", btn))
+                Settings.SettingsManager.Instance?.ToggleMute();
+
+            if (GUI.Button(new Rect(cx - tbw / 2f, ty + 56f, tbw, 44f),
+                    gm.HighContrast ? "High Contrast: On (C)" : "High Contrast: Off (C)", btn))
+                Settings.SettingsManager.Instance?.ToggleContrast();
+        }
+
+        private void DrawPauseMenu(GameManager gm)
+        {
+            bool hc = gm.HighContrast;
+            DrawDim(hc ? 0.85f : 0.6f);
+
+            Color fg = hc ? Color.yellow : Color.white;
+            float cx = Screen.width / 2f;
+
+            GUI.Label(new Rect(cx - 220, Screen.height * 0.28f, 440, 72), "PAUSED", TitleStyle(fg));
+
+            var btn = ButtonStyle(fg);
+            float bw = 260f, bh = 56f;
+            float by = Screen.height * 0.45f;
+
+            if (GUI.Button(new Rect(cx - bw / 2f, by, bw, bh), "Resume", btn))
+                gm.Resume();
+
+            if (GUI.Button(new Rect(cx - bw / 2f, by + 72f, bw, bh), "Restart", btn))
+                gm.ReturnToMenu();
+
+            if (GUI.Button(new Rect(cx - bw / 2f, by + 144f, bw, bh), "Quit Game", btn))
                 QuitGame();
         }
 

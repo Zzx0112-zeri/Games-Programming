@@ -13,8 +13,12 @@ namespace PowerCellEscape.Settings
     /// </summary>
     public class SettingsManager : MonoBehaviour
     {
+        public static SettingsManager Instance { get; private set; }
+
         void Awake()
         {
+            if (Instance != null) { Destroy(gameObject); return; }
+            Instance = this;
             ApplyAudio();
             ApplyContrast();
         }
@@ -23,6 +27,11 @@ namespace PowerCellEscape.Settings
         {
             var gm = Core.GameManager.Instance;
             if (gm == null) return;
+
+            if (Input.GetKeyDown(KeyCode.P) || Input.GetKeyDown(KeyCode.Escape))
+            {
+                gm.TogglePause();
+            }
 
             if (Input.GetKeyDown(KeyCode.C))
             {
@@ -55,6 +64,24 @@ namespace PowerCellEscape.Settings
             var gm = Core.GameManager.Instance;
             if (gm == null) return;
             AudioListener.volume = gm.Muted ? 0f : gm.Volume;
+        }
+
+        /// <summary>Toggle mute from a UI button and re-apply the audio setting.</summary>
+        public void ToggleMute()
+        {
+            var gm = Core.GameManager.Instance;
+            if (gm == null) return;
+            gm.Muted = !gm.Muted;
+            ApplyAudio();
+        }
+
+        /// <summary>Toggle high-contrast mode from a UI button and re-apply it.</summary>
+        public void ToggleContrast()
+        {
+            var gm = Core.GameManager.Instance;
+            if (gm == null) return;
+            gm.HighContrast = !gm.HighContrast;
+            ApplyContrast();
         }
 
         void ApplyContrast()
